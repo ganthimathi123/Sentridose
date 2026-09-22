@@ -1,0 +1,52 @@
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+backend/venv/
+backend/env/
+backend/__pycache__/
+build/
+dist/
+downloads/
+*.egg-info/
+
+# Database & Local Uploads
+*.db
+*.sqlite
+*.sqlite3
+backend/sentridose.db
+uploads/
+backend/uploads/
+!backend/uploads/.gitkeep
+scratch/
+
+# Node / React Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+.npm
+*.log
+
+# IDE & OS Files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Environment & Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+firebase-credentials.json

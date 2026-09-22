@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./sentridose.db
+      - JWT_SECRET=sentridose_super_secret_jwt_key_2026_change_in_production
+      - DEMO_MODE=true
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./models:/app/models
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

@@ -1,0 +1,185 @@
+{
+  "best_model_name": "RandomForest Classifier (500 Trees)",
+  "best_cv_accuracy": 0.997139,
+  "classes": [
+    "BASE",
+    "LOW",
+    "MEDIUM",
+    "HIGH"
+  ],
+  "feature_cols": [
+    "mean_r",
+    "mean_g",
+    "mean_b",
+    "std_r",
+    "std_g",
+    "std_b",
+    "lab_l",
+    "lab_a",
+    "lab_b",
+    "lch_c",
+    "lch_h",
+    "luv_l",
+    "luv_u",
+    "luv_v",
+    "h_val",
+    "s_val",
+    "v_val",
+    "y_val",
+    "cr_val",
+    "cb_val",
+    "chroma_x",
+    "chroma_y",
+    "rg_ratio",
+    "gb_ratio",
+    "rb_ratio",
+    "log_rg",
+    "log_gb",
+    "log_rb",
+    "delta_e_base",
+    "dist_ref_0",
+    "dist_ref_1",
+    "dist_ref_2",
+    "dist_ref_3",
+    "dist_ref_4",
+    "dist_ref_5",
+    "dist_ref_6",
+    "dist_ref_7",
+    "dist_ref_8",
+    "dist_ref_9",
+    "dist_ref_10",
+    "dist_ref_11"
+  ],
+  "num_samples": 61524,
+  "num_dosimeter_groups": 18324,
+  "model_comparison": {
+    "RandomForest Classifier (500 Trees)": {
+      "cv_accuracy": 0.997139,
+      "precision": 0.997139,
+      "recall": 0.997139,
+      "f1_score": 0.997139,
+      "confusion_matrix": [
+        [
+          15370,
+          67,
+          0,
+          7
+        ],
+        [
+          72,
+          15355,
+          17,
+          0
+        ],
+        [
+          0,
+          12,
+          15180,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          15443
+        ]
+      ]
+    },
+    "ExtraTrees Classifier (500 Trees)": {
+      "cv_accuracy": 0.996944,
+      "precision": 0.996944,
+      "recall": 0.996944,
+      "f1_score": 0.996944,
+      "confusion_matrix": [
+        [
+          15371,
+          69,
+          0,
+          4
+        ],
+        [
+          77,
+          15346,
+          21,
+          0
+        ],
+        [
+          0,
+          16,
+          15176,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          15443
+        ]
+      ]
+    },
+    "XGBoost Gradient Boosting": {
+      "cv_accuracy": 0.997042,
+      "precision": 0.997041,
+      "recall": 0.997042,
+      "f1_score": 0.997042,
+      "confusion_matrix": [
+        [
+          15365,
+          75,
+          0,
+          4
+        ],
+        [
+          71,
+          15356,
+          17,
+          0
+        ],
+        [
+          0,
+          13,
+          15179,
+          0
+        ],
+        [
+          2,
+          0,
+          0,
+          15442
+        ]
+      ]
+    },
+    "HistGradientBoosting": {
+      "cv_accuracy": 0.997074,
+      "precision": 0.997074,
+      "recall": 0.997074,
+      "f1_score": 0.997074,
+      "confusion_matrix": [
+        [
+          15372,
+          68,
+          0,
+          4
+        ],
+        [
+          70,
+          15355,
+          19,
+          0
+        ],
+        [
+          0,
+          16,
+          15176,
+          0
+        ],
+        [
+          3,
+          0,
+          0,
+          15441
+        ]
+      ]
+    }
+  }
+}
