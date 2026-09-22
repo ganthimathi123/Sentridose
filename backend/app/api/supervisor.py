@@ -149,64 +149,146 @@ def get_workers(status: Optional[str] = None, db: Session = Depends(get_db)):
     return result
 
 @router.post("/workers", response_model=WorkerSummary)
-def create_worker(request: WorkerCreateRequest, db: Session = Depends(get_db)):
+def create_worker(
+    request: WorkerCreateRequest,
+    db: Session = Depends(get_db)
+):
     code = request.worker_code.strip().upper()
-    existing = db.query(Worker).filter(func.lower(Worker.worker_code) == code.lower()).first()
+
+    # Check duplicate Worker Code
+    existing = db.query(Worker).filter(
+        func.lower(Worker.worker_code) == code.lower()
+    ).first()
+
     if existing:
-        raise HTTPException(status_code=400, detail="Worker Code already exists.")
+        raise HTTPException(
+            status_code=400,
+            detail="Worker Code already exists."
+        )
 
-    dept_name = "Production"
-    zone_name = "Zone A"
-    shift_name = "Morning"
+    # Department is required
+    if not request.department_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Department is required."
+        )
 
-    if request.department_id:
-        dept = db.query(Department).filter(Department.id == request.department_id).first()
-        if dept:
-            dept_name = dept.name
+    dept = db.query(Department).filter(
+        Department.id == request.department_id
+    ).first()
 
-    new_worker = Worker(
-        name=request.name.strip(),
-        worker_code=code,
-        department=dept_name,
-        phone=request.phone.strip() if request.phone else None,
-        status=request.status.upper() if request.status else "ACTIVE",
-        is_active=request.status != "INACTIVE" if request.status else True
-    )
-    db.add(new_worker)
-    db.commit()
-    db.refresh(new_worker)
+    if not dept:
+        raise HTTPException(
+            status_code=404,
+            detail="Department not found."
+        )
 
-    # Auto-create active assignment if department_id, zone_id, shift_id provided
-    dept_id = request.department_id or 1
-    zone_id = request.zone_id or 1
-    shift_id = request.shift_id or 1
+    if dept.status != "ACTIVE":
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot assign worker to an INACTIVE department."
+        )
 
-    assignment = WorkerAssignment(
-        worker_id=new_worker.id,
-        department_id=dept_id,
-        zone_id=zone_id,
-        shift_id=shift_id,
-        status="ACTIVE"
-    )
-    db.add(assignment)
-    db.commit()
+    # Zone is required
+    if not request.zone_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Zone is required."
+        )
 
-    z = db.query(Zone).filter(Zone.id == zone_id).first()
-    if z:
-        zone_name = z.name
-    s = db.query(Shift).filter(Shift.id == shift_id).first()
-    if s:
-        shift_name = s.name
+    zone = db.query(Zone).filter(
+        Zone.id == request.zone_id
+    ).first()
+
+    if not zone:
+        raise HTTPException(
+            status_code=404,
+            detail="Zone not found."
+        )
+
+    if zone.status != "ACTIVE":
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot assign worker to an INACTIVE zone."
+        )
+
+    # Make sure zone belongs to selected department
+    if zone.department_id != dept.id:
+        raise HTTPException(
+            status_code=400,
+            detail="Selected zone does not belong to the selected department."
+        )
+
+    # Shift is required
+    if not request.shift_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Shift is required."
+        )
+
+    shift = db.query(Shift).filter(
+        Shift.id == request.shift_id
+    ).first()
+
+    if not shift:
+        raise HTTPException(
+            status_code=404,
+            detail="Shift not found."
+        )
+
+    if shift.status != "ACTIVE":
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot assign worker to an INACTIVE shift."
+        )
+
+    try:
+        # Create worker
+        new_worker = Worker(
+            name=request.name.strip(),
+            worker_code=code,
+            department=dept.name,
+            status=request.status.upper() if request.status else "ACTIVE",
+            is_active=(
+                request.status.upper() != "INACTIVE"
+                if request.status
+                else True
+            )
+        )
+
+        db.add(new_worker)
+        db.flush()
+
+        # Create initial active assignment
+        assignment = WorkerAssignment(
+            worker_id=new_worker.id,
+            department_id=dept.id,
+            zone_id=zone.id,
+            shift_id=shift.id,
+            status="ACTIVE",
+            start_date=datetime.datetime.utcnow()
+        )
+
+        db.add(assignment)
+        db.commit()
+
+        db.refresh(new_worker)
+
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to create worker and assignment."
+        )
 
     return {
         "id": new_worker.id,
         "name": new_worker.name,
         "worker_code": new_worker.worker_code,
-        "department": dept_name,
-        "department_name": dept_name,
-        "zone_name": zone_name,
-        "shift_name": shift_name,
-        "phone": new_worker.phone,
+        "department": dept.name,
+        "department_name": dept.name,
+        "zone_name": zone.name,
+        "shift_name": shift.name,
         "status": new_worker.status
     }
 
